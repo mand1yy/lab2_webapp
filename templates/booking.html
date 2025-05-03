@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if mode == 'create' %}Створити бронювання{% elif mode == 'edit' %}Редагувати бронювання{% else %}Перегляд бронювання{% endif %}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: inline-block; width: 150px; }
+        input, select { padding: 5px; width: 200px; }
+        .message { padding: 10px; margin-bottom: 10px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>{% if mode == 'create' %}Створити бронювання{% elif mode == 'edit' %}Редагувати бронювання{% else %}Перегляд бронювання{% endif %}</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="message {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    {% if mode != 'view' %}
+        <form method="POST">
+            <div class="form-group">
+                <label for="guest_name">Ім'я гостя:</label>
+                <input type="text" id="guest_name" name="guest_name" value="{{ booking.guest_name if booking else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="check_in_date">Дата заїзду:</label>
+                <input type="date" id="check_in_date" name="check_in_date" value="{{ booking.check_in_date if booking else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="check_out_date">Дата виїзду:</label>
+                <input type="date" id="check_out_date" name="check_out_date" value="{{ booking.check_out_date if booking else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="room_id">Номер:</label>
+                <select id="room_id" name="room_id" required>
+                    {% for room in rooms %}
+                        <option value="{{ room.id }}" {% if booking and booking.room_id == room.id %}selected{% endif %}>
+                            {{ room.room_number }} ({{ room.room_type }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit">{% if mode == 'create' %}Створити{% else %}Зберегти{% endif %}</button>
+            <a href="{{ url_for('index') }}">Назад</a>
+        </form>
+    {% else %}
+        <p><strong>Ім'я гостя:</strong> {{ booking.guest_name }}</p>
+        <p><strong>Дата заїзду:</strong> {{ booking.check_in_date }}</p>
+        <p><strong>Дата виїзду:</strong> {{ booking.check_out_date }}</p>
+        <p><strong>Номер:</strong> {{ booking.room_number }} ({{ booking.room_type }})</p>
+        <a href="{{ url_for('index') }}">Назад</a>
+    {% endif %}
+</body>
+</html>
